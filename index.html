@@ -31,6 +31,158 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+  // ===================== BACKEND CONFIG =====================
+  // Set this to your Pi's Cloudflare Tunnel URL once deployed.
+  // Example: 'https://routelog.yourdomain.com'
+  // Leave as empty string to run in offline/localStorage-only mode.
+  const API_BASE = '';
+
+  const GOOGLE_CLIENT_ID = '210103213011-310sqa00pg7n51iuvgcao14lu1of67kn.apps.googleusercontent.com';
+
+  // Current logged-in user (null = not logged in / offline mode)
+  let currentUser = null;
+
+  async function apiCall(method, path, body) {
+    if (!API_BASE) return null;
+    const opts = {
+      method,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(API_BASE + path, opts);
+    if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
+    return res.json();
+  }
+
+  async function checkSession() {
+    if (!API_BASE) { showApp(); return; }
+    try {
+      const data = await apiCall('GET', '/api/auth/me');
+      if (data && data.user) {
+        currentUser = data.user;
+        showApp();
+        await syncSettingsFromServer();
+        await syncRoutesFromServer();
+      } else {
+        showLoginScreen();
+      }
+    } catch {
+      showLoginScreen();
+    }
+  }
+
+  async function handleGoogleLogin(response) {
+    try {
+      const data = await apiCall('POST', '/api/auth/google', { credential: response.credential });
+      if (data && data.user) {
+        currentUser = data.user;
+        // If user has existing localStorage data, offer to migrate it
+        const localRoutes = getRoutes();
+        if (localRoutes.length > 0) {
+          await migrateToServer();
+        } else {
+          await syncSettingsFromServer();
+          await syncRoutesFromServer();
+        }
+        showApp();
+        renderHome();
+        updateUserBadge();
+      }
+    } catch (e) {
+      showToast('Sign-in failed. Try again.');
+    }
+  }
+
+  async function logout() {
+    try { await apiCall('POST', '/api/auth/logout'); } catch {}
+    currentUser = null;
+    showLoginScreen();
+  }
+
+  function showLoginScreen() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+
+  function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    updateUserBadge();
+  }
+
+  function updateUserBadge() {
+    const badge = document.getElementById('user-badge');
+    if (!badge) return;
+    if (currentUser) {
+      badge.textContent = currentUser.display_name || currentUser.email;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ===================== SERVER SYNC =====================
+
+  async function syncRoutesFromServer() {
+    if (!currentUser || !API_BASE) return;
+    try {
+      const routes = await apiCall('GET', '/api/routes');
+      if (routes) saveRoutes(routes);
+    } catch {}
+  }
+
+  async function syncSettingsFromServer() {
+    if (!currentUser || !API_BASE) return;
+    try {
+      const settings = await apiCall('GET', '/api/settings');
+      if (settings) localStorage.setItem('rl_settings', JSON.stringify(settings));
+    } catch {}
+  }
+
+  async function pushRouteToServer(route) {
+    if (!currentUser || !API_BASE) return;
+    try {
+      const result = await apiCall('POST', '/api/routes', route);
+      if (result && result.id) {
+        const routes = getRoutes();
+        const idx = routes.findIndex(r => r.id === route.id);
+        if (idx !== -1) { routes[idx].serverId = result.id; saveRoutes(routes); }
+      }
+    } catch {}
+  }
+
+  async function updateRouteOnServer(route) {
+    if (!currentUser || !API_BASE || !route.serverId) return;
+    try { await apiCall('PUT', '/api/routes/' + route.serverId, route); } catch {}
+  }
+
+  async function deleteRouteOnServer(serverId) {
+    if (!currentUser || !API_BASE || !serverId) return;
+    try { await apiCall('DELETE', '/api/routes/' + serverId); } catch {}
+  }
+
+  async function pushSettingsToServer(settings) {
+    if (!currentUser || !API_BASE) return;
+    try { await apiCall('PUT', '/api/settings', settings); } catch {}
+  }
+
+  async function migrateToServer() {
+    if (!currentUser || !API_BASE) return;
+    const routes = getRoutes();
+    const settings = getSettings();
+    try {
+      const result = await apiCall('POST', '/api/import', { routes, settings });
+      if (result && result.imported > 0) {
+        showToast(`Migrated ${result.imported} routes to your account ✓`);
+        await syncRoutesFromServer();
+      }
+    } catch {}
+  }
+</script>
 <style>
   :root {
     --bg: #0d0f14;
@@ -597,6 +749,46 @@
   .edit-field label { font-size: 11px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
 
   scroll-behavior: smooth;
+
+  /* ---- LOGIN SCREEN ---- */
+  #login-screen {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--bg);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 28px;
+    z-index: 1000;
+  }
+  .login-logo { font-family: var(--mono); font-size: 42px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+  .login-logo span { color: var(--text2); font-weight: 400; }
+  .login-tagline { font-size: 15px; color: var(--text2); text-align: center; line-height: 1.6; margin-bottom: 48px; max-width: 300px; }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    width: 100%; max-width: 340px;
+    text-align: center;
+  }
+  .login-box-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .login-box-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; line-height: 1.5; }
+  .login-footer { font-size: 11px; color: var(--text3); margin-top: 28px; text-align: center; line-height: 1.6; max-width: 280px; }
+  .user-badge {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--text3);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 3px 10px;
+    cursor: pointer;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: none;
+  }
 </style>
 <script>
   // Register service worker for offline + home screen support
@@ -624,6 +816,18 @@
 </script>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-logo">Route<span>Log</span></div>
+  <div class="login-tagline">Track your Flex earnings, mileage,<br>and quarterly taxes.</div>
+  <div class="login-box">
+    <div class="login-box-title">Sign in to sync your data</div>
+    <div class="login-box-sub">Your routes will be saved to your account and available on any device.</div>
+    <div id="google-signin-btn" style="display:flex;justify-content:center"></div>
+  </div>
+  <div class="login-footer">No ads. No data selling. Your earnings data is only accessible to you.</div>
+</div>
 
 <div id="app">
   <!-- TOAST -->
@@ -784,6 +988,7 @@
         <div class="header-sub" id="home-date"></div>
       </div>
       <div class="rate-pill" id="home-rate-pill" style="display:none">⚡ <span id="home-hourly">—</span>/hr</div>
+      <div class="user-badge" id="user-badge" onclick="logout()" title="Tap to sign out"></div>
     </div>
 
     <div class="card" style="margin-bottom:12px">
@@ -976,7 +1181,7 @@
     </div>
 
     <div style="text-align:center;padding:20px;color:var(--text3);font-family:var(--mono);font-size:11px">
-      RouteLog v1.3.0 · Built for Flex drivers<br>Data stored locally on this device
+      RouteLog v1.2.6 · Built for Flex drivers<br>Data stored locally on this device
     </div>
   </div>
 
@@ -1237,6 +1442,7 @@ function saveRoute() {
   const routes = getRoutes();
   routes.push(route);
   saveRoutes(routes);
+  pushRouteToServer(route);
   clearLogForm();
   showToast('Route saved ✓');
 }
@@ -1315,7 +1521,7 @@ function renderTax() {
         <div class="tax-row"><span class="tax-row-label">Net taxable income</span><span class="tax-row-val">${fmt$(tax.netTaxable)}</span></div>
         <div class="tax-row"><span class="tax-row-label">Self-employment tax (15.3%)</span><span class="tax-row-val">${fmt$(tax.seTax)}</span></div>
         <div class="tax-row"><span class="tax-row-label">Federal income tax (${s.fedBracket}%)</span><span class="tax-row-val">${fmt$(tax.fedIncome)}</span></div>
-        <div class="tax-row"><span class="tax-row-label">State income tax (${s.stateRate}%)</span><span class="tax-row-val">${fmt$(tax.stateIncome)}</span></div>
+        <div class="tax-row"><span class="tax-row-label">Michigan state tax (${s.stateRate}%)</span><span class="tax-row-val">${fmt$(tax.stateIncome)}</span></div>
         <div class="tax-row total"><span class="tax-row-label">Estimated total due</span><span class="tax-row-val">${fmt$(tax.total)}</span></div>
         <div class="tax-links">
           <a class="tax-link" href="https://www.irs.gov/payments" target="_blank">IRS Direct Pay →</a>
@@ -1360,6 +1566,7 @@ function renderSettings() {
 
 function saveSetting(key, val) {
   saveSettingStore(key, val);
+  pushSettingsToServer(getSettings());
   showToast('Saved');
 }
 
@@ -1557,7 +1764,7 @@ function exportQuarterPDF(year, q) {
     <tr><td>Net taxable income</td><td>${fmt$(tax.netTaxable)}</td></tr>
     <tr><td style="padding-top:12px">Self-employment tax (15.3%)</td><td style="padding-top:12px">${fmt$(tax.seTax)}</td></tr>
     <tr><td>Federal income tax (${s.fedBracket}% bracket)</td><td>${fmt$(tax.fedIncome)}</td></tr>
-    <tr><td>State income tax (${s.stateRate}%)</td><td>${fmt$(tax.stateIncome)}</td></tr>
+    <tr><td>Michigan state income tax (${s.stateRate}%)</td><td>${fmt$(tax.stateIncome)}</td></tr>
     <tr class="total-row"><td>Total estimated payment due</td><td>${fmt$(tax.total)}</td></tr>
   </table>
   <h2>Route Detail</h2>
@@ -1652,8 +1859,11 @@ function deleteRoute(id) {
   document.getElementById('modalTitle').textContent = 'Delete this route?';
   document.getElementById('modalBody').textContent = 'This block will be permanently removed from your history and totals.';
   document.getElementById('modalConfirm').onclick = () => {
-    const routes = getRoutes().filter(r => r.id !== id);
-    saveRoutes(routes);
+    const routes = getRoutes();
+    const route = routes.find(r => r.id === id);
+    const filtered = routes.filter(r => r.id !== id);
+    saveRoutes(filtered);
+    if (route) deleteRouteOnServer(route.serverId);
     closeModal();
     showToast('Route deleted');
     if (document.getElementById('view-history').classList.contains('active')) renderHistory();
@@ -1740,6 +1950,7 @@ function saveEditRoute() {
     notes: document.getElementById('edit-notes').value
   };
   saveRoutes(routes);
+  updateRouteOnServer(routes[idx]);
   closeEditSheet();
   showToast('Route updated ✓');
   if (document.getElementById('view-history').classList.contains('active')) renderHistory();
@@ -1826,9 +2037,24 @@ function attachAllSwipes() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  checkOnboarding();
-  renderHome();
-  initLogForm();
+  // Initialize Google Sign-In button
+  if (typeof google !== 'undefined') {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleLogin,
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('google-signin-btn'),
+      { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
+    );
+  }
+
+  // Check if already logged in, or go to login screen
+  checkSession().then(() => {
+    checkOnboarding();
+    renderHome();
+    initLogForm();
+  });
 });
 </script>
 </body>

@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: routelog-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: routelog
+      POSTGRES_USER: routelog
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - routelog-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U routelog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    container_name: routelog-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://routelog:${DB_PASSWORD}@db:5432/routelog
+      SECRET_KEY: ${SECRET_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      FLASK_DEBUG: "false"
+    ports:
+      - "5000:5000"
+
+volumes:
+  routelog-pgdata:
