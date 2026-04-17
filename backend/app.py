@@ -19,8 +19,32 @@ import json
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
 
-# Allow requests from the frontend (GitHub Pages or local)
-CORS(app, origins=os.environ.get('ALLOWED_ORIGINS', '*'), supports_credentials=True)
+# Session cookies must be SameSite=None; Secure so the browser sends them
+# on cross-origin requests (GitHub Pages → Railway over HTTPS).
+app.config.update(
+    SESSION_COOKIE_SAMESITE='None',
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+)
+
+# CORS: wildcard '*' is rejected by browsers when credentials:true is set.
+# Always list explicit origins. Set ALLOWED_ORIGINS in Railway as a
+# comma-separated string, e.g.:
+#   https://robscode96.github.io,http://localhost:5500
+_raw_origins = os.environ.get(
+    'ALLOWED_ORIGINS',
+    'https://robscode96.github.io'
+)
+_allowed_origins = [o.strip() for o in _raw_origins.split(',') if o.strip()]
+
+CORS(
+    app,
+    origins=_allowed_origins,
+    supports_credentials=True,
+    allow_headers=['Content-Type', 'Authorization'],
+    expose_headers=['Content-Type'],
+    methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 DATABASE_URL = os.environ['DATABASE_URL']
