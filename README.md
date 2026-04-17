@@ -2,7 +2,7 @@
 
 A financial dashboard for gig delivery workers. Track earnings, mileage, and quarterly taxes — all on your device.
 
-🔗 **Live app:** [robscode96.github.io/flex-tracker](https://robscode96.github.io/routelog)
+🔗 **Live app:** [robscode96.github.io/routelog](https://robscode96.github.io/routelog)
 
 ---
 
