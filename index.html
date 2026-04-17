@@ -80,15 +80,15 @@
         localStorage.setItem('rl_user', JSON.stringify(data.user));
         // If user has existing localStorage data, offer to migrate it
         const localRoutes = getRoutes();
-        if (localRoutes.length > 0) {
-          await migrateToServer();
-        } else {
-          await syncSettingsFromServer();
-          await syncRoutesFromServer();
-        }
         showApp();
         renderHome();
         updateUserBadge();
+        if (localRoutes.length > 0) {
+          migrateToServer();
+        } else {
+          syncSettingsFromServer();
+          syncRoutesFromServer();
+        }
       }
     } catch (e) {
       showToast('Sign-in failed. Try again.');
