@@ -38,7 +38,7 @@
   // Set this to your Pi's Cloudflare Tunnel URL once deployed.
   // Example: 'https://routelog.yourdomain.com'
   // Leave as empty string to run in offline/localStorage-only mode.
-  const API_BASE = 'routelog-production-2b59.up.railway.app';
+  const API_BASE = 'https://routelog-production-2b59.up.railway.app';
 
   const GOOGLE_CLIENT_ID = '210103213011-310sqa00pg7n51iuvgcao14lu1of67kn.apps.googleusercontent.com';
 
@@ -2059,18 +2059,6 @@ function attachAllSwipes() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Google Sign-In button
-  if (typeof google !== 'undefined') {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleLogin,
-    });
-    google.accounts.id.renderButton(
-      document.getElementById('google-signin-btn'),
-      { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
-    );
-  }
-
   // Check if already logged in, or go to login screen
   checkSession().then(() => {
     checkOnboarding();
@@ -2078,6 +2066,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initLogForm();
   });
 });
+
+// Google Sign-In initializes after its script loads (async defer)
+window.onGoogleLibraryLoad = function() {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleLogin,
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('google-signin-btn'),
+    { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
+  );
+};
 </script>
 </body>
 </html>
