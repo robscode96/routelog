@@ -96,6 +96,7 @@
 
   async function logout() {
     try { await apiCall('POST', '/api/auth/logout'); } catch {}
+    localStorage.removeItem('rl_user');
     currentUser = null;
     showLoginScreen();
   }
