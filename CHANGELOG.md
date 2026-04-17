@@ -6,6 +6,49 @@ Versioning follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH
 
 ---
 
+## [1.2.6] — 2026-04-16
+
+### Changed
+- Pace badges restored to filled style (green/amber for goal badge, dark fill for time badge).
+
+---
+
+## [1.2.5] — 2026-04-16
+
+### Fixed
+- Pace badges no longer wrap awkwardly next to the earnings amount. Text is now `nowrap` and centered within each badge.
+
+---
+
+## [1.2.4] — 2026-04-16
+
+### Changed
+- Pace badges now use outline style instead of filled background — cleaner look
+- "% of time" label now reads "% of week" or "% of month" depending on context
+
+---
+
+## [1.2.3] — 2026-04-16
+
+### Added
+- Second pace bubble on Home showing how far through the current week or month you are (e.g. "60% of time"). Sits next to the goal percentage badge so you can instantly compare earnings progress vs. time elapsed.
+
+---
+
+## [1.2.2] — 2026-04-16
+
+### Changed
+- Pace badges on Home now show percentage of goal reached (e.g. "63% of goal") instead of dollar amount ahead/behind. Green when on pace, amber when behind.
+
+---
+
+## [1.2.1] — 2026-04-16
+
+### Fixed
+- Pace badges (ahead/behind) no longer show on Home when no routes have been logged for that week or month. Previously the app would calculate a deficit against the goal even with $0 earned and no activity, which was misleading on a fresh install.
+
+---
+
 ## [1.2.0] — 2026-04-16
 
 ### Added
