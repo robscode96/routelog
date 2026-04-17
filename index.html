@@ -602,7 +602,7 @@
   // Register service worker for offline + home screen support
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'routelog-v1.2.6';
+      const CACHE = 'routelog-v1.3.0';
       self.addEventListener('install', e => {
         e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './routelog.html'])));
         self.skipWaiting();
@@ -976,7 +976,7 @@
     </div>
 
     <div style="text-align:center;padding:20px;color:var(--text3);font-family:var(--mono);font-size:11px">
-      RouteLog v1.2.6 · Built for Flex drivers<br>Data stored locally on this device
+      RouteLog v1.3.0 · Built for Flex drivers<br>Data stored locally on this device
     </div>
   </div>
 
@@ -1315,7 +1315,7 @@ function renderTax() {
         <div class="tax-row"><span class="tax-row-label">Net taxable income</span><span class="tax-row-val">${fmt$(tax.netTaxable)}</span></div>
         <div class="tax-row"><span class="tax-row-label">Self-employment tax (15.3%)</span><span class="tax-row-val">${fmt$(tax.seTax)}</span></div>
         <div class="tax-row"><span class="tax-row-label">Federal income tax (${s.fedBracket}%)</span><span class="tax-row-val">${fmt$(tax.fedIncome)}</span></div>
-        <div class="tax-row"><span class="tax-row-label">Michigan state tax (${s.stateRate}%)</span><span class="tax-row-val">${fmt$(tax.stateIncome)}</span></div>
+        <div class="tax-row"><span class="tax-row-label">State income tax (${s.stateRate}%)</span><span class="tax-row-val">${fmt$(tax.stateIncome)}</span></div>
         <div class="tax-row total"><span class="tax-row-label">Estimated total due</span><span class="tax-row-val">${fmt$(tax.total)}</span></div>
         <div class="tax-links">
           <a class="tax-link" href="https://www.irs.gov/payments" target="_blank">IRS Direct Pay →</a>
@@ -1557,7 +1557,7 @@ function exportQuarterPDF(year, q) {
     <tr><td>Net taxable income</td><td>${fmt$(tax.netTaxable)}</td></tr>
     <tr><td style="padding-top:12px">Self-employment tax (15.3%)</td><td style="padding-top:12px">${fmt$(tax.seTax)}</td></tr>
     <tr><td>Federal income tax (${s.fedBracket}% bracket)</td><td>${fmt$(tax.fedIncome)}</td></tr>
-    <tr><td>Michigan state income tax (${s.stateRate}%)</td><td>${fmt$(tax.stateIncome)}</td></tr>
+    <tr><td>State income tax (${s.stateRate}%)</td><td>${fmt$(tax.stateIncome)}</td></tr>
     <tr class="total-row"><td>Total estimated payment due</td><td>${fmt$(tax.total)}</td></tr>
   </table>
   <h2>Route Detail</h2>
