@@ -1445,6 +1445,9 @@ function saveRoute() {
   pushRouteToServer(route);
   clearLogForm();
   showToast('Route saved ✓');
+  // Navigate to home
+  const homeBtn = document.querySelector('.nav-btn[data-view="home"]');
+  showView('home', homeBtn);
 }
 
 function clearLogForm() {
