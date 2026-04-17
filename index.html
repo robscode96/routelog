@@ -840,15 +840,15 @@
 <body>
 
 <!-- LOGIN SCREEN -->
-<div id="login-screen">
-  <div class="login-logo">Route<span>Log</span></div>
-  <div class="login-tagline">Track your Flex earnings, mileage,<br>and quarterly taxes.</div>
-  <div class="login-box">
-    <div class="login-box-title">Sign in to sync your data</div>
-    <div class="login-box-sub">Your routes will be saved to your account and available on any device.</div>
-    <div id="google-signin-btn" style="display:flex;justify-content:center"></div>
+<div id="login-screen" style="display:none;position:fixed;inset:0;background:#0d0f14;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 40px;z-index:1000;overflow:hidden;width:100%;box-sizing:border-box;">
+  <div style="font-family:monospace;font-size:36px;font-weight:700;color:#00e5a0;margin-bottom:8px;width:100%;text-align:center;">Route<span style="color:#8b92a8;font-weight:400;">Log</span></div>
+  <div style="font-size:14px;color:#8b92a8;text-align:center;line-height:1.6;margin-bottom:32px;width:100%;max-width:280px;">Track your Flex earnings, mileage,<br>and quarterly taxes.</div>
+  <div style="background:#161922;border:1px solid #2a2f3d;border-radius:16px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-sizing:border-box;">
+    <div style="font-size:16px;font-weight:600;margin-bottom:6px;">Sign in to sync your data</div>
+    <div style="font-size:13px;color:#555e75;margin-bottom:20px;line-height:1.5;">Your routes will be saved to your account and available on any device.</div>
+    <div id="google-signin-btn" style="display:flex;justify-content:center;align-items:center;min-height:44px;width:100%;overflow:hidden;"></div>
   </div>
-  <div class="login-footer">No ads. No data selling. Your earnings data is only accessible to you.</div>
+  <div style="font-size:11px;color:#555e75;margin-top:24px;text-align:center;line-height:1.6;max-width:260px;">No ads. No data selling. Your earnings data is only accessible to you.</div>
 </div>
 
 <div id="app">
