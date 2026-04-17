@@ -9,4 +9,4 @@ COPY app.py .
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "60", "app:app"]
+CMD gunicorn --bind 0.0.0.0:8080 --workers 2 --timeout 60 --log-level debug --error-logfile - --access-logfile - app:app
