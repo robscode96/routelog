@@ -1,6 +1,6 @@
 # Deploying RouteLog to GitHub Pages
 
-This gets RouteLog live at `https://obscode96.github.io/flex-tracker` (or whatever repo name you use).
+This gets RouteLog live at `https://robscode96.github.io/routelog` .
 
 ## One-time setup
 
