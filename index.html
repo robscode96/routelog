@@ -77,6 +77,7 @@
       const data = await apiCall('POST', '/api/auth/google', { credential: response.credential });
       if (data && data.user) {
         currentUser = data.user;
+        localStorage.setItem('rl_user', JSON.stringify(data.user));
         // If user has existing localStorage data, offer to migrate it
         const localRoutes = getRoutes();
         if (localRoutes.length > 0) {
