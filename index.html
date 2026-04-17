@@ -2094,7 +2094,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Google Sign-In initializes after its script loads (async defer)
-window.onGoogleLibraryLoad = function() {
+window.onGoogleLibraryLoad = function() {   google.accounts.id.initialize({     client_id: GOOGLE_CLIENT_ID,     callback: handleGoogleLogin,     ux_mode: 'popup',   });   google.accounts.id.renderButton(     document.getElementById('google-signin-btn'),     { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }   );   // Also prompt One Tap which works better in PWA/iOS contexts   google.accounts.id.prompt(); };   google.accounts.id.initialize({     client_id: GOOGLE_CLIENT_ID,     callback: handleGoogleLogin,     ux_mode: 'popup',   });   google.accounts.id.renderButton(     document.getElementById('google-signin-btn'),     { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }   );   // Also prompt One Tap which works better in PWA/iOS contexts   google.accounts.id.prompt(); };   google.accounts.id.initialize({     client_id: GOOGLE_CLIENT_ID,     callback: handleGoogleLogin,     ux_mode: 'popup',   });   google.accounts.id.renderButton(     document.getElementById('google-signin-btn'),     { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }   );   // Also prompt One Tap which works better in PWA/iOS contexts   google.accounts.id.prompt(); };
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleLogin,
