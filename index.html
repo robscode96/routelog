@@ -602,7 +602,7 @@
   // Register service worker for offline + home screen support
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'routelog-v1';
+      const CACHE = 'routelog-v1.2.6';
       self.addEventListener('install', e => {
         e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './routelog.html'])));
         self.skipWaiting();
