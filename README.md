@@ -1,69 +1,89 @@
 # RouteLog
 
-A financial dashboard for gig delivery workers. Track earnings, mileage, and quarterly taxes — all on your device.
+A financial dashboard for gig delivery workers — built by a Flex driver, for Flex drivers.
 
-🔗 **Live app:** [robscode96.github.io/routelog](https://robscode96.github.io/routelog)
+**Live app:** [robscode96.github.io/routelog](https://robscode96.github.io/routelog)
 
 ---
 
-## Features
+## What It Does
 
-- **Route logging** — log each delivery block in under 30 seconds: earnings, miles, start/end time, route type, and notes
-- **Home dashboard** — weekly and monthly earnings vs. goals, pace tracking, miles driven, and effective hourly rate
-- **Full history** — every route grouped by week, with live search and per-week totals
-- **Quarterly tax estimates** — federal SE tax, federal income tax, and state income tax calculated per quarter with links to IRS Direct Pay and Michigan Treasury Online
-- **PDF export** — print-ready quarterly tax summary for your records or tax preparer
-- **Route editing** — correct any logged route after the fact
-- **CSV export** — download all your data anytime
+RouteLog treats every delivery block as a **route** — a single record that pairs earnings, mileage, and time together. Everything else flows from that: weekly and monthly progress, effective hourly rate, and a quarterly tax estimate that actually matches how the IRS works.
+
+- **Log routes** in under 30 seconds — earnings, miles, start/end time, route type, notes
+- **Dashboard** shows this week and this month: earnings vs. goal, miles, pace indicator, and hourly rate
+- **Full history** with weekly grouping, text search, and filter by route type (Flex, DoorDash, etc.)
+- **Quarterly tax view** — the feature that doesn't exist anywhere else. SE tax, federal income tax, and state income tax, broken down per quarter with IRS due dates and a downloadable summary
+- **Settings** for income goals, IRS mileage rate, tax bracket, state rate, and custom route types
+- **Google Sign-In** (Phase 2) — sync your data across devices via a self-hosted backend
+
+---
+
+## Why I Built This
+
+Existing tools track income and mileage separately with no concept of a "route" as a single event. None of them show a clean quarterly breakdown with an estimated tax liability — which is what actually matters when you're a 1099 contractor making quarterly IRS payments.
 
 ---
 
 ## Privacy
 
-No accounts. No sign-in. No analytics. No servers.
-
-All data is stored locally on your device using the browser's built-in storage. Nothing is ever transmitted anywhere.
+- **Phase 1 (offline mode):** No accounts. No sign-in. No data collection. All data stays on your device via `localStorage`.
+- **Phase 2 (signed in):** Data syncs to a self-hosted server on a Raspberry Pi. No third-party cloud. Your data never touches anyone else's infrastructure.
 
 ---
 
-## Installation
+## Install as an App
 
-RouteLog is a Progressive Web App. No App Store required.
+RouteLog is a Progressive Web App — no App Store required.
 
-**iPhone:** Open the app in Safari → tap the Share icon → "Add to Home Screen"  
-**Android:** Open in Chrome → tap the menu → "Add to Home Screen"
-
-The app works fully offline after the first load.
+**iPhone:** Tap the Share button → "Add to Home Screen"  
+**Android:** Tap the browser menu → "Add to Home Screen"
 
 ---
 
 ## Tech Stack
 
-| | |
-|---|---|
-| Language | HTML, CSS, JavaScript — no frameworks |
-| Storage | Browser `localStorage` |
-| Hosting | GitHub Pages |
-| PWA | Service Worker + Web App Manifest |
+**Frontend**
+- Plain HTML, CSS, and JavaScript — no frameworks
+- `localStorage` for offline/Phase 1 data storage
+- Google Sign-In (OAuth 2.0) for Phase 2 auth
+- Hosted on GitHub Pages
+
+**Backend (Phase 2)**
+- Python + Flask REST API
+- PostgreSQL database
+- Docker + Docker Compose
+- Self-hosted on Raspberry Pi via Cloudflare Tunnel
 
 ---
 
-## Running Locally
+## Project Structure
 
-```bash
-git clone https://github.com/obscode96/flex-tracker.git
-open index.html
 ```
-
-No build step. No dependencies. Open the file and it works.
+routelog/
+├── index.html          # The entire frontend — one file
+├── SCHEMA.md           # Canonical data schema (frontend + backend)
+├── CHANGELOG.md        # Version history
+├── docker-compose.yml  # Spins up API + database on the Pi
+├── .env.example        # Environment variable template
+├── .gitignore
+└── backend/
+    ├── app.py          # Flask API — auth, routes, settings, import
+    ├── Dockerfile
+    └── requirements.txt
+```
 
 ---
 
-## Project Files
+## Roadmap
 
-```
-├── index.html        — The application
-├── PRODUCT_SPEC.md   — Product specification
-├── CHANGELOG.md      — Version history
-└── DEPLOY.md         — Deployment guide
-```
+| Version | Scope |
+|---------|-------|
+| ✅ 1.0 | Flex Earnings Tracker (original) |
+| ✅ 2.0 | RouteLog — full dashboard, tax view, PWA, Google Sign-In, backend API |
+| 2.1 | Pi deployment, Cloudflare Tunnel |
+| 2.2 | Quarterly email reminders |
+
+---
+
+*Built by a Flex driver in Oakland Township, Michigan.*

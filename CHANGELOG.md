@@ -5,41 +5,50 @@ Format: [Version] — Date — Description
 
 ---
 
+## [1.4.0] — 2026-04-16
+
+### Added
+- **History type filter chips** — filter route history by type (All / Flex / DSP / DoorDash / etc.) with scrollable chip row above the search bar
+- **Improved app icon** — replaced plain "RL" text icon with a proper SVG icon for the PWA home screen shortcut
+
+### Changed
+- **PDF/tax export** — replaced clunky print dialog with a direct `.html` file download. Opens cleanly in any browser and prints to PDF from there. Filename format: `RouteLog-Q1-2026-Tax-Summary.html`
+- **Tax export label** — "Michigan state income tax" → "State income tax" in downloaded summary
+- Service worker cache bumped to `routelog-v1.4.0`
+- Settings footer version bumped to v1.4.0
+
+---
+
 ## [2.0.0] — 2026-04-16
 
 ### Added
-- **Google Sign-In** — users authenticate with their Google account via OAuth 2.0
-- **Backend API** — Python/Flask REST API (`backend/app.py`) with full CRUD for routes and settings
-- **PostgreSQL database** — persistent server-side storage with `users`, `routes`, and `settings` tables
-- **Docker Compose** — `docker-compose.yml` spins up the API and database together on the Pi
-- **Automatic sync** — routes and settings push to the server in the background after every save/edit/delete
-- **localStorage migration** — one-time import of existing local data to the server account on first login
-- **Offline fallback** — if `API_BASE` is empty, the app runs in localStorage-only mode (no login required)
-- **Login screen** — clean sign-in UI shown when backend is configured and user is not authenticated
-- **User badge** — shows signed-in user's name in the home header; tap to sign out
-- `.env.example` — environment variable template for Pi deployment
-- `.gitignore` — prevents secrets from being committed
-
-### Changed
-- Service worker cache bumped to `routelog-v1.3.0`
+- **Google Sign-In** — OAuth 2.0 authentication
+- **Backend API** — Python/Flask REST API with full CRUD for routes and settings
+- **PostgreSQL database** — persistent server-side storage (users, routes, settings tables)
+- **Docker Compose** — deploys API + database together on the Pi
+- **Automatic sync** — routes and settings push to server after every save/edit/delete
+- **localStorage migration** — one-time import of existing local data on first sign-in
+- **Offline fallback** — API_BASE = '' runs app in localStorage-only mode, no login required
+- **Login screen** — shown when backend is configured and user is not authenticated
+- **User badge** — shows signed-in name in home header; tap to sign out
+- `.env.example` and `.gitignore`
 
 ---
 
 ## [1.3.0] — 2026-04-16
 
 ### Fixed
-- **Tax view and PDF export:** Removed hardcoded "Michigan state tax" labels. Now displays as "State income tax (X%)" so the app works correctly for drivers in any state.
+- "Michigan state tax" labels → "State income tax (X%)" in tax view and PDF export
 
 ### Added
-- **SCHEMA.md:** Canonical data schema document
-- **CHANGELOG.md:** This file
+- SCHEMA.md — canonical data schema
+- CHANGELOG.md
 
 ---
 
-## [1.2.6] — (prior release)
+## [1.2.6] — prior release
 
-### Summary
-Full Phase 1 feature-complete release. Route logging, dashboard, history, quarterly tax view, PDF export, CSV export, settings, onboarding, edit route, PWA manifest, service worker, bottom nav.
+Full Phase 1 feature set: route logging, dashboard, history, quarterly tax view, PDF/CSV export, settings, onboarding, edit route, swipe-to-delete, PWA, service worker, bottom nav.
 
 ---
 
@@ -47,49 +56,5 @@ Full Phase 1 feature-complete release. Route logging, dashboard, history, quarte
 
 | Version | Scope |
 |---------|-------|
-| 2.0.x | Pi deployment, Cloudflare Tunnel setup |
-| 2.1.0 | PDF export improvements, quarterly email reminders |
-
-
-All notable changes to this project are documented here.  
-Format: [Version] — Date — Description
-
----
-
-## [1.3.0] — 2026-04-16
-
-### Fixed
-- **Tax view and PDF export:** Removed hardcoded "Michigan state tax" labels. Now displays as "State income tax (X%)" so the app works correctly for drivers in any state.
-
-### Added
-- **SCHEMA.md:** Canonical data schema document defining the Route object, Settings object, localStorage keys, IRS quarter definitions, tax calculation logic, and the planned Phase 2 backend database tables. This is the source of truth for all data structures going forward.
-- **CHANGELOG.md:** This file. All future changes will be logged here.
-
----
-
-## [1.2.6] — (prior release)
-
-### Summary
-Full Phase 1 feature-complete release. Includes:
-- Route logging (earnings, miles, start/end time, route type, notes)
-- Dashboard with weekly/monthly earnings progress, miles, pace indicators, and effective hourly rate
-- Full route history with weekly grouping, search, and swipe-to-delete
-- Quarterly tax view with IRS-accurate estimates (SE tax, federal income, state income, mileage deduction)
-- PDF export per quarter
-- CSV export of all routes
-- Settings (goals, mileage rate, tax bracket, state rate, custom route types)
-- Onboarding flow
-- Edit route sheet
-- PWA manifest for home screen installation
-- Service worker for offline access
-- Bottom navigation bar
-
----
-
-## Roadmap
-
-| Version | Scope |
-|---------|-------|
-| 1.3.x | Bug fixes, Phase 1 polish |
-| 2.0.0 | Backend (Python/Flask), PostgreSQL, Google Sign-In, multi-device sync |
-| 2.1.0 | PDF export improvements, quarterly email reminders |
+| 2.1.0 | Pi deployment, Cloudflare Tunnel |
+| 2.2.0 | Quarterly email reminders |
