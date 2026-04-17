@@ -61,17 +61,13 @@
 
   async function checkSession() {
     if (!API_BASE) { showApp(); return; }
-    try {
-      const data = await apiCall('GET', '/api/auth/me');
-      if (data && data.user) {
-        currentUser = data.user;
-        showApp();
-        await syncSettingsFromServer();
-        await syncRoutesFromServer();
-      } else {
-        showLoginScreen();
-      }
-    } catch {
+    const savedUser = localStorage.getItem('rl_user');
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser);
+      showApp();
+      await syncSettingsFromServer();
+      await syncRoutesFromServer();
+    } else {
       showLoginScreen();
     }
   }
