@@ -1869,7 +1869,7 @@ function exportQuarterPDF(year, q) {
 
   // iOS Safari doesn't support programmatic downloads — open in new tab instead.
   // User can then Share → Print → Save as PDF from Safari's native share sheet.
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (isIOS) {
     const win = window.open('', '_blank');
     if (win) {
